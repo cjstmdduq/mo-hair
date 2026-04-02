@@ -1,0 +1,9 @@
+{
+  "name": "mohair-portfolio-site",
+  "private": true,
+  "description": "정적 사이트 — 로컬/LAN 미리보기",
+  "scripts": {
+    "start": "bash ./dev-server.sh",
+    "serve": "bash ./dev-server.sh"
+  }
+}
