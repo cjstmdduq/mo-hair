@@ -104,20 +104,66 @@
 
   var nav = document.getElementById("site-nav");
   var toggle = document.querySelector(".nav-toggle");
+  var navClose = document.querySelector(".nav-close");
+  var mqMobileNav = window.matchMedia("(max-width: 860px)");
+
+  function syncNavAriaHidden() {
+    if (!nav) return;
+    if (mqMobileNav.matches) {
+      nav.setAttribute("aria-hidden", nav.classList.contains("is-open") ? "false" : "true");
+    } else {
+      nav.removeAttribute("aria-hidden");
+    }
+  }
+
+  function onMobileNavMqChange() {
+    if (!nav || !toggle) return;
+    if (!mqMobileNav.matches) {
+      nav.classList.remove("is-open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "메뉴 열기");
+    }
+    syncNavAriaHidden();
+    updateHeaderTheme();
+  }
+
+  function setNavOpen(open) {
+    if (!nav || !toggle) return;
+    nav.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
+    syncNavAriaHidden();
+    updateHeaderTheme();
+  }
+
   if (toggle && nav) {
+    syncNavAriaHidden();
+    if (typeof mqMobileNav.addEventListener === "function") {
+      mqMobileNav.addEventListener("change", onMobileNavMqChange);
+    } else if (typeof mqMobileNav.addListener === "function") {
+      mqMobileNav.addListener(onMobileNavMqChange);
+    }
+
     toggle.addEventListener("click", function () {
-      var open = nav.classList.toggle("is-open");
-      toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      toggle.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
-      updateHeaderTheme();
+      setNavOpen(!nav.classList.contains("is-open"));
     });
+
+    if (navClose) {
+      navClose.addEventListener("click", function () {
+        setNavOpen(false);
+      });
+    }
+
     nav.querySelectorAll("a").forEach(function (link) {
       link.addEventListener("click", function () {
-        nav.classList.remove("is-open");
-        toggle.setAttribute("aria-expanded", "false");
-        toggle.setAttribute("aria-label", "메뉴 열기");
-        updateHeaderTheme();
+        setNavOpen(false);
       });
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && nav.classList.contains("is-open")) {
+        setNavOpen(false);
+      }
     });
   }
 })();
